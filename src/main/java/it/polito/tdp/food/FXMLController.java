@@ -1,8 +1,11 @@
 package it.polito.tdp.food;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.food.model.Adiacenza;
+import it.polito.tdp.food.model.Food;
 import it.polito.tdp.food.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -39,24 +42,59 @@ public class FXMLController {
     private Button btnSimula;
 
     @FXML
-    private ComboBox<?> boxFood;
+    private ComboBox<Food> boxFood;
 
     @FXML
     private TextArea txtResult;
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    	txtResult.clear();
+    	Integer numMin;
+    	try {
+    		numMin = Integer.parseInt(this.txtPorzioni.getText());
+    	} catch(NumberFormatException e) {
+    		txtResult.appendText("Devi inserire un numero intero!\n");
+    		return;
+    	}
+    	model.creaGrafo(numMin);
+    	this.boxFood.getItems().addAll(model.getFood());
+    	txtResult.appendText(String.format("Grafo creato con %d vertici e %d archi!\n", model.nVertici(), model.nArchi()));
     }
 
     @FXML
     void doGrassi(ActionEvent event) {
-
+    	txtResult.clear();
+    	Food source = boxFood.getValue();
+    	if(source == null) {
+    		txtResult.appendText("Devi selezionare un cibo!\n");
+    		return;
+    	}
+    	List<Adiacenza> result = model.getAdiacenze(source);
+    	for(int i=0; i<result.size(); i++) {
+    		if(i == 5)
+    			return;
+    		txtResult.appendText(String.format("%s %s %.2f \n", result.get(i).getF1(), result.get(i).getF2(), result.get(i).getPeso()));
+    	}
     }
 
     @FXML
     void doSimula(ActionEvent event) {
-
+    	txtResult.clear();
+    	Food source = boxFood.getValue();
+    	if(source == null) {
+    		txtResult.appendText("Devi selezionare un cibo!\n");
+    		return;
+    	}
+    	Integer K;
+    	try {
+    		K = Integer.parseInt(this.txtK.getText());
+    	} catch(NumberFormatException e) {
+    		txtResult.appendText("Devi inserire un numero intero!\n");
+    		return;
+    	}
+    	model.simula(source, K);
+    	txtResult.appendText(String.format("Sono stati preparati %d cibi in %.2f ore!\n", model.getNumeroCibi(), model.getTempoTotale()));
     }
 
     @FXML
